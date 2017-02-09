@@ -1,0 +1,27 @@
+.bordercard {
+    padding:10px !important;
+    border:3px solid orange !important;
+}
+
+.psubtext {/*
+    font-weight: bold;*/
+}
+.allicons{
+    font-size: 40px !important;
+}
+tr.clickable-row {
+    cursor: pointer !important;
+}
+tr.clickable-row:hover{
+    background-color: orange !important;
+}
+.legenda-link a{
+    text-decoration: none !important;
+    color: #000000 !important;
+}
+.legenda-link a:hover,
+.legenda-link:hover{
+    cursor: pointer !important;
+    color: orange !important;
+    font-weight: bold !important;
+}
