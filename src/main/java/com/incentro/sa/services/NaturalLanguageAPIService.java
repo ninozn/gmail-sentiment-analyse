@@ -1,4 +1,4 @@
-package com.incentro.sa;
+package com.incentro.sa.services;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
@@ -29,10 +29,14 @@ public class NaturalLanguageAPIService {
     private static final String APPLICATION_NAME = "gmail-sa";
 
     private static final int MAX_RESULTS = 4;
+    private final CloudNaturalLanguageAPI languageApi;
 
     /**
-     * Detects entities,sentiment and syntax in a document using the Natural Language API.
+     * Constructs a {@link NaturalLanguageAPIService} which connects to the Cloud Natural Language API.
      */
+    public NaturalLanguageAPIService(CloudNaturalLanguageAPI languageApi) {
+        this.languageApi = languageApi;
+    }
 
     /**
      * Print a list of {@code entities}.
@@ -104,15 +108,6 @@ public class NaturalLanguageAPIService {
         })
                 .setApplicationName(APPLICATION_NAME)
                 .build();
-    }
-
-    private final CloudNaturalLanguageAPI languageApi;
-
-    /**
-     * Constructs a {@link NaturalLanguageAPIService} which connects to the Cloud Natural Language API.
-     */
-    public NaturalLanguageAPIService(CloudNaturalLanguageAPI languageApi) {
-        this.languageApi = languageApi;
     }
 
     /**

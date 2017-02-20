@@ -12,8 +12,8 @@ import java.util.logging.Logger;
 
 public class AuthenticationFilter implements Filter {
 
-    private String[] excludedUrls;
     private final Logger LOGGER = Logger.getLogger(AuthenticationFilter.class.getName());
+    private String[] excludedUrls;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -43,20 +43,15 @@ public class AuthenticationFilter implements Filter {
 
         UserService userService = UserServiceFactory.getUserService();
         User currentUserFromService = userService.getCurrentUser();
-
-        if (currentUserFromService == null && cron == null) {
+    
+        if (currentUserFromService == null) {
             LOGGER.info("The user service did not find a logged in user. Redirecting the user to the Google login.");
             ((HttpServletResponse) response).sendRedirect(userService.createLoginURL(((HttpServletRequest) request).getRequestURI()));
             return;
         }
         request.setAttribute("logout_url", userService.createLogoutURL("/"));
         request.setAttribute("currentUser", currentUserFromService);
-        if(1==1){
-            chain.doFilter(request,response);
-            return;
-        }
-        LOGGER.info("The user service did not find a logged in/authorized user. Redirecting the user to the Google login.");
-        request.getRequestDispatcher("/pages/exception/noAccess.jsp").forward(request, response);
+        chain.doFilter(request, response);
     }
 
     @Override

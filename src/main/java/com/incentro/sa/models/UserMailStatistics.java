@@ -7,15 +7,11 @@ import com.googlecode.objectify.annotation.Index;
 
 @Entity
 @Cache
-public class UsersInfo {
-
+public class UserMailStatistics {
     @Id
     private Long id;
-
     @Index
     private String userId;
-
-
 
     @Index
     private int negative = 0;
@@ -53,17 +49,19 @@ public class UsersInfo {
     public int getNegative() {
         return negative;
     }
+    
+    public void setNegative(int negative) {
+        this.negative = negative;
+    }
 
     public int getAllNegative() {
         return negative + extremely_negative + slighty_negative;
     }
+
     public int getAllPositive() {
         return positive + extremely_postive + slighty_positive;
     }
 
-    public void setNegative(int negative) {
-        this.negative = negative;
-    }
     public void addNegative()
     {
         this.negative ++;
@@ -96,13 +94,13 @@ public class UsersInfo {
     public int getSlighty_positive() {
         return slighty_positive;
     }
-    public void addSPositive()
-    {
-        this.slighty_positive ++;
-    }
 
     public void setSlighty_positive(int slighty_positive) {
         this.slighty_positive = slighty_positive;
+    }
+    
+    public void addSPositive() {
+        this.slighty_positive++;
     }
 
     public int getExtremely_negative() {
@@ -155,7 +153,7 @@ public class UsersInfo {
 
     @Override
     public String toString() {
-        return "UsersInfo{" +
+        return "UserMailStatistics{" +
                 "id=" + id +
                 ", userId='" + userId + '\'' +
                 ", negative='" + negative + '\'' +

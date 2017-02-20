@@ -1,4 +1,4 @@
-package com.incentro.sa;
+package com.incentro.sa.services;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
@@ -12,9 +12,10 @@ import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.GmailScopes;
 import com.google.api.services.gmail.model.*;
 import com.google.api.services.language.v1beta1.model.Sentiment;
+import com.incentro.sa.Constant;
 import com.incentro.sa.models.EmailObject;
 import com.incentro.sa.models.GoogleUser;
-import com.incentro.sa.models.UsersInfo;
+import com.incentro.sa.models.UserMailStatistics;
 import org.apache.commons.mail.util.MimeMessageParser;
 
 import javax.mail.MessagingException;
@@ -23,7 +24,6 @@ import javax.mail.internet.MimeMessage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.*;
-import java.util.Date;
 import java.util.logging.Logger;
 
 import static com.googlecode.objectify.ObjectifyService.ofy;
@@ -37,29 +37,26 @@ public class GmailAPIService {
 
     /** Directory to store user credentials for this application. */
     private static final java.io.File DATA_STORE_DIR = new java.io.File("WEB-INF/credentials/");
-
-    /** Global instance of the {@link FileDataStoreFactory}. */
-    private static FileDataStoreFactory DATA_STORE_FACTORY;
-
-
     /** Global instance of the JSON factory. */
     private static final JsonFactory JSON_FACTORY =
             JacksonFactory.getDefaultInstance();
-
-    /** Global instance of the HTTP transport. */
-    private static HttpTransport HTTP_TRANSPORT;
-
-    private static String resultPolarityString;
-
     /** Global instance of the scopes required by this quickstart.
      *
      * If modifying these scopes, delete your previously saved credentials
      * at ~/.credentials/gmail-java-quickstart
      */
-    private static final List<String> SCOPES =
-            Arrays.asList(GmailScopes.MAIL_GOOGLE_COM);
-
+    private static final List<String> SCOPES = Arrays.asList(GmailScopes.MAIL_GOOGLE_COM);
     private final static Logger LOGGER = Logger.getLogger(GmailAPIService.class.getName());
+    /**
+     * Global instance of the {@link FileDataStoreFactory}.
+     */
+    private static FileDataStoreFactory DATA_STORE_FACTORY;
+    /**
+     * Global instance of the HTTP transport.
+     */
+    private static HttpTransport HTTP_TRANSPORT;
+    private static String resultPolarityString;
+
     static {
         try {
             HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
@@ -100,7 +97,7 @@ public class GmailAPIService {
     public static List<Message> listMessagesWithLabels(Gmail service, String userId,
                                                        List<String> labelIds,GoogleUser gu) throws Exception {
         ListMessagesResponse response = service.users().messages().list(userId).setLabelIds(labelIds).execute();
-        List<Message> messages = new ArrayList<Message>();
+        List<Message> messages = new ArrayList<>();
 
         while (response.getMessages() != null) {
             messages.addAll(response.getMessages());
@@ -127,15 +124,14 @@ public class GmailAPIService {
                 Float magnitudeResult = resultofanalyse.getMagnitude();
                 Float polarityResult = resultofanalyse.getPolarity();
                 modifyClassification(service,userId,message.getId(),polarityResult,gu);
-            } catch (Exception e)
-            {
-                List<String> labelstoadd = new ArrayList<String>();
+            } catch (Exception e) {
+                List<String> labelstoadd = new ArrayList<>();
                 resultPolarityString = "Language Unknown";
                 System.out.println("1" + resultPolarityString);
-                labelstoadd.add(getLabelIdByName(service,userId,"Language Unknown"));
-                List<String> labelstoremove = new ArrayList<String>();
+                labelstoadd.add(getLabelIdByName(service,userId, "Language Unknown"));
+                List<String> labelstoremove = new ArrayList<>();
                 labelstoremove.add("INBOX");
-                UsersInfo userinfo = null;
+                UserMailStatistics userinfo;
                 userinfo = checkUserInfo(userId);
                 if(userinfo!= null)
                 {
@@ -167,44 +163,39 @@ public class GmailAPIService {
         Message message = service.users().messages().get(userId, messageId).setFormat("raw").execute();
 
         Base64 base64Url = new Base64(true);
-        byte[] emailBytes = base64Url.decodeBase64(message.getRaw());
+        byte[] emailBytes = Base64.decodeBase64(message.getRaw());
 
         Properties props = new Properties();
         Session session = Session.getDefaultInstance(props, null);
 
         return new MimeMessage(session, new ByteArrayInputStream(emailBytes));
     }
-
-
-    public static void modifyClassification(Gmail service, String userId, String messageId, Float pol,GoogleUser gu) throws IOException {
-        String labelText = "";
-        List<String> labelstoadd = new ArrayList<String>();
-        List<String> labelstoremove = new ArrayList<String>();
+    
+    
+    public static void modifyClassification(Gmail service, String userId, String messageId, Float polarity, GoogleUser googleUser) throws IOException {
+        String labelText;
+        List<String> labelstoadd = new ArrayList<>();
+        List<String> labelstoremove = new ArrayList<>();
         labelstoremove.add("INBOX");
-        UsersInfo userinfo = null;
+        UserMailStatistics userinfo;
         userinfo = checkUserInfo(userId);
-
-        if(pol <= -0.9){
+        
+        if(polarity <= -0.9){
             labelText = "Extremely Negative";
             userinfo.addENegative();
-        }
-        else if(pol < -0.3 && pol > -0.9){
+        } else if (polarity < -0.3 && polarity > -0.9){
             labelText = "Negative";
             userinfo.addNegative();
-        }
-        else if(pol < 0 && pol >= -0.3){
+        } else if (polarity < 0 && polarity >= -0.3){
             labelText = "Slightly Negative";
             userinfo.addSNegative();
-        }
-        else if(pol > 0 && pol <= 0.3){
+        } else if (polarity > 0 && polarity <= 0.3){
             labelText = "Slightly Positive";
             userinfo.addSPositive();
-        }
-        else if(pol > 0.3 && pol < 0.9){
+        } else if (polarity > 0.3 && polarity < 0.9){
             labelText = "Positive";
             userinfo.addPositive();
-        }
-        else if(pol >= 0.9){
+        } else if(polarity >= 0.9){
             labelText = "Extremely Positive";
             userinfo.addEPositive();
         }
@@ -220,17 +211,15 @@ public class GmailAPIService {
         LOGGER.severe(userinfo + "");
         ofy().save().entity(userinfo).now();
         labelstoadd.add(labelID);
-        modifyMessage(getGmailService(gu),userId,messageId,labelstoadd,labelstoremove);
+        modifyMessage(getGmailService(googleUser), userId, messageId, labelstoadd, labelstoremove);
     }
-
-    public static UsersInfo checkUserInfo(String userId)
-    {
-        UsersInfo userinfo = null;
-            try{
-                userinfo = ofy().load().type(UsersInfo.class).filter("userId", userId).first().now();
-                if( userinfo == null)
-                {
-                    userinfo = new UsersInfo();
+    
+    public static UserMailStatistics checkUserInfo(String userId) {
+        UserMailStatistics userinfo = null;
+        try {
+            userinfo = ofy().load().type(UserMailStatistics.class).filter("userId", userId).first().now();
+                if( userinfo == null) {
+                    userinfo = new UserMailStatistics();
                     userinfo.setUserId(userId);
                 }
             }

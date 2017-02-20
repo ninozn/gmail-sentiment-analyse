@@ -1,6 +1,6 @@
 package com.incentro.sa.Servlets;
 
-import com.incentro.sa.GoogleOAuth2Util;
+import com.incentro.sa.services.GoogleOAuth2Util;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -14,8 +14,9 @@ public class Subscribe extends HttpServlet {
     }
 
     protected void doGet(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
+        //TODO What is happening here?
         GoogleOAuth2Util googleoauth2util = new GoogleOAuth2Util();
         String subscribeUrl = googleoauth2util.getSubscribeUrl(httpServletRequest);
-        ((HttpServletResponse) httpServletResponse).sendRedirect(subscribeUrl);
+        httpServletResponse.sendRedirect(subscribeUrl);
     }
 }

@@ -211,7 +211,7 @@
 
                 </div>
                 <div class="row">
-                    <c:if test="${not empty pieChartValues.allPositiveValues && not empty pieChartValues.allNegativeValues}">
+                    <c:if test="${not empty valueLabels.allPositiveValues && not empty valueLabels.allNegativeValues}">
                         <div class="col-md-3">
                             <div class="card bordercard">
                                 <div class="header">
@@ -226,10 +226,10 @@
                                 <div class="footer">
                                     <h6>Legend</h6>
                                     <ul>
-                                        <c:forEach items="${pieChartValues.allPositiveValues}" var="cv">
+                                        <c:forEach items="${valueLabels.allPositiveValues}" var="cv">
                                             <li>${cv.label}: ${cv.value}</li>
                                         </c:forEach>
-                                        <c:forEach items="${pieChartValues.allNegativeValues}" var="cv">
+                                        <c:forEach items="${valueLabels.allNegativeValues}" var="cv">
                                             <li>${cv.label}: ${cv.value}</li>
                                         </c:forEach>
                                     </ul>
@@ -238,7 +238,7 @@
                         </div>
                     </c:if>
 
-                    <c:if test="${not empty pieChartValues.chartValues}">
+                    <c:if test="${not empty valueLabels.valueLabels}">
                         <div class="col-md-5">
                             <div class="card bordercard">
                                 <div class="header">
@@ -253,7 +253,7 @@
                                         <div class="col-md-6">
                                             <h6>Legend</h6>
                                             <ul>
-                                                <c:forEach items="${pieChartValues.chartValues}" var="cv">
+                                                <c:forEach items="${valueLabels.valueLabels}" var="cv">
                                                     <li class="legenda-link"><a href="https://mail.google.com/mail/u/0/#label/${cv.label}">${cv.label}: ${cv.value}</a></li>
                                                 </c:forEach>
                                             </ul>
@@ -311,7 +311,7 @@
                 </div> <!-- END row -->
 
                 <div class="row">
-                    <c:if test="${not empty pieChartValues.chartValues}">
+                    <c:if test="${not empty valueLabels.valueLabels}">
                         <div class="col-md-8">
                             <div class="card bordercard">
                                 <div class="header">
@@ -385,14 +385,14 @@
             Chartist.Pie('#chartPreferences', dataPreferences, optionsPreferences);
 
             Chartist.Pie('#chartPreferences', {
-                labels: ${pieChartValues.stringValues},
-                series: ${pieChartValues.intValues}
+                labels: ${valueLabels.stringValues},
+                series: ${valueLabels.intValues}
             });
 
             // Bar Chart
             var data = {
                 labels: ['Values'],
-                series: [${pieChartValues.barPValues},${pieChartValues.barNValues}
+                series: [${valueLabels.barChartPositiveValues}, ${valueLabels.barChartNegativeValues}
                 ]
             };
 

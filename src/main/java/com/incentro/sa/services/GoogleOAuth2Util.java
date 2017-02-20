@@ -1,4 +1,4 @@
-package com.incentro.sa;
+package com.incentro.sa.services;
 
 import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.extensions.appengine.datastore.AppEngineDataStoreFactory;
@@ -13,6 +13,7 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.appengine.api.utils.SystemProperty;
 import com.google.apphosting.api.ApiProxy;
+import com.incentro.sa.Constant;
 import com.incentro.sa.models.GoogleUser;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
@@ -39,7 +40,11 @@ import static com.googlecode.objectify.ObjectifyService.ofy;
  * 3) Make sure the Constant.* variables in this file are correct
  */
 public class GoogleOAuth2Util {
-    static GoogleUser currentuser = null;
+    private static GoogleUser googleUser = null;
+    
+    public static GoogleUser getUser() {
+        return googleUser;
+    }
 
     public Tokeninfo getTokenInfo(HttpServletRequest httpServletRequest, String authorisationCode) throws IOException {
         GoogleAuthorizationCodeFlow authorizationCodeFlow = getAuthorizationCodeFlow();
@@ -51,39 +56,35 @@ public class GoogleOAuth2Util {
 
         try {
             UserService userService = UserServiceFactory.getUserService();
-            User serviceuser = userService.getCurrentUser();
-            if (!serviceuser.getEmail().equals(tokeninfo.getEmail())){
+            User currentUser = userService.getCurrentUser();
+            if (!currentUser.getEmail().equals(tokeninfo.getEmail())) {
                 return null;
             }
 
-            boolean test = true;
             for (GoogleUser gu : ofy().load().type(GoogleUser.class).list())
             {
                 if(gu.getPrimaryEmail().equals(tokeninfo.getEmail())){
-                    test = false;
                     //httpServletRequest.setAttribute("errormessage","email is already subscribed");
                     return tokeninfo;
                 }
             }
-            if (test) {
-                if (tokenResponse.getRefreshToken() != null && !tokenResponse.getRefreshToken().equals("") || tokenResponse.getAccessToken() != null) {
-                    GoogleUser user = new GoogleUser();
-                    user.setRefreshToken(tokenResponse.getRefreshToken());
-                    user.setPrimaryEmail(tokeninfo.getEmail());
-                    user.setUserId(tokeninfo.getUserId());
-                    user.setAccessToken(tokenResponse.getAccessToken());
-                    ofy().save().entity(user).now();
-                }
+            if (tokenResponse.getRefreshToken() != null && !tokenResponse.getRefreshToken().equals("") || tokenResponse.getAccessToken() != null) {
+                GoogleUser user = new GoogleUser();
+                user.setRefreshToken(tokenResponse.getRefreshToken());
+                user.setPrimaryEmail(tokeninfo.getEmail());
+                user.setUserId(tokeninfo.getUserId());
+                user.setAccessToken(tokenResponse.getAccessToken());
+                ofy().save().entity(user).now();
             }
-
+    
         } catch (Exception e) {
             e.printStackTrace();
         }
         return tokeninfo;
     }
-
-    public GoogleAuthorizationCodeFlow getAuthorizationCodeFlow() throws IOException {
-        GoogleAuthorizationCodeFlow authorizationCodeFlow = new GoogleAuthorizationCodeFlow.Builder(
+    
+    private GoogleAuthorizationCodeFlow getAuthorizationCodeFlow() throws IOException {
+        return new GoogleAuthorizationCodeFlow.Builder(
                 new NetHttpTransport(),
                 JacksonFactory.getDefaultInstance(),
                 Constant.WEBCLIENT_ID,
@@ -92,7 +93,6 @@ public class GoogleOAuth2Util {
         ).setDataStoreFactory(
                 new AppEngineDataStoreFactory()
         ).build();
-        return authorizationCodeFlow;
     }
 
     public String getSubscribeUrl(HttpServletRequest httpServletRequest) throws IOException {
@@ -125,8 +125,8 @@ public class GoogleOAuth2Util {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-
-        if (SystemProperty.environment.value() == SystemProperty.Environment.Value.Development) {
+    
+        if (SystemProperty.environment.value() == SystemProperty.Environment.Value.Development && domain != null) {
             ApiProxy.Environment env = ApiProxy.getCurrentEnvironment();
             // localhost needs proper port, not always 8080
             if(domain.equals("sentiment-analyse.appspot.com")){
@@ -141,9 +141,5 @@ public class GoogleOAuth2Util {
         }
         return "http://" + domain + "/oauth2callback";
 
-    }
-    public static GoogleUser getUser()
-    {
-        return currentuser;
     }
 }

@@ -2,7 +2,7 @@ package com.incentro.sa.Servlets;
 
 import com.google.api.client.auth.oauth2.TokenResponseException;
 import com.google.api.services.oauth2.model.Tokeninfo;
-import com.incentro.sa.GoogleOAuth2Util;
+import com.incentro.sa.services.GoogleOAuth2Util;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -55,49 +55,42 @@ public class Oauth2CallBackServlet extends HttpServlet {
         if (intendedUrl == null) {
             throw new ServletException("Looks like you didn't give us a valid intended url.");
         }
-
-        if (authorisationCode != null) {
-
-            Tokeninfo tokenInfo = null;
-
-            try {
-                tokenInfo = googleOauth2util.getTokenInfo(httpServletRequest, authorisationCode);
-            } catch (TokenResponseException e) {
-                httpServletRequest.setAttribute("errormessage","We couldn't get a valid token.");
-                httpServletRequest.getRequestDispatcher("/login").forward(httpServletRequest, httpServletResponse);
-                return;
-            }
-            if(tokenInfo == null){
-                httpServletRequest.setAttribute("errormessage","Please authenticate with the same email.");
-                httpServletRequest.getRequestDispatcher("home.jsp").forward(httpServletRequest, httpServletResponse);
-                return;
-            }
-
-            if (tokenInfo.getExpiresIn() == null || tokenInfo.getExpiresIn() < 100) {
-                throw new ServletException("Looks like we couldn't authenticate you!");
-            }
-
-            // Google ID
-            String loggedInUserId = tokenInfo.getUserId();
-            httpServletRequest.getSession().setAttribute("loggedInUserId", loggedInUserId);
-
-            // Google Email (for dev, because dev doesn't send out proper ids)
-            String loggedInUserEmail = tokenInfo.getEmail();
-            httpServletRequest.getSession().setAttribute("loggedInUserEmail", loggedInUserEmail);
-
-            // The user is authenticated. Let's redirect him/her to the intranet
-            //httpServletResponse.sendRedirect(intendedUrl);
-            httpServletRequest.setAttribute("message","Successfully subscribed");
+    
+        Tokeninfo tokenInfo;
+    
+        try {
+            tokenInfo = googleOauth2util.getTokenInfo(httpServletRequest, authorisationCode);
+        } catch (TokenResponseException e) {
+            httpServletRequest.setAttribute("errormessage", "We couldn't get a valid token.");
+            httpServletRequest.getRequestDispatcher("/login").forward(httpServletRequest, httpServletResponse);
+            return;
+        }
+        if (tokenInfo == null) {
+            httpServletRequest.setAttribute("errormessage", "Please authenticate with the same email.");
             httpServletRequest.getRequestDispatcher("home.jsp").forward(httpServletRequest, httpServletResponse);
             return;
         }
-
-        throw new ServletException("Something went wrong!");
-
+    
+        if (tokenInfo.getExpiresIn() == null || tokenInfo.getExpiresIn() < 100) {
+            throw new ServletException("Looks like we couldn't authenticate you!");
+        }
+    
+        // Google ID
+        String loggedInUserId = tokenInfo.getUserId();
+        httpServletRequest.getSession().setAttribute("loggedInUserId", loggedInUserId);
+    
+        // Google Email (for dev, because dev doesn't send out proper ids)
+        String loggedInUserEmail = tokenInfo.getEmail();
+        httpServletRequest.getSession().setAttribute("loggedInUserEmail", loggedInUserEmail);
+    
+        // The user is authenticated. Let's redirect him/her to the intranet
+        //httpServletResponse.sendRedirect(intendedUrl);
+        httpServletRequest.setAttribute("message", "Successfully subscribed");
+        httpServletRequest.getRequestDispatcher("home.jsp").forward(httpServletRequest, httpServletResponse);
     }
 
     private Map<String, String> stringToMap(String source, String entriesSeparator, String keyValueSeparator) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         String[] entries = source.split(entriesSeparator);
         for (String entry : entries) {
 
