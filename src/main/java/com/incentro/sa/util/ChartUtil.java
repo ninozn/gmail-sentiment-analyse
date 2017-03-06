@@ -87,7 +87,7 @@ public class ChartUtil {
         return valueLabelList;
     }
     
-    public static List<ValueLabel> makeLineChart(String userEmail) throws Exception {
+    static List<ValueLabel> makeLineChart(String userEmail) throws Exception {
         List<EmailObject> eos = getEmailObjectsByMail(userEmail);
         
         if (eos != null) {
