@@ -1,4 +1,4 @@
-package com.incentro.sa.Servlets;
+package com.incentro.sa.servlets;
 
 import com.incentro.sa.services.GoogleOAuth2Util;
 

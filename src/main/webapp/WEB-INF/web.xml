@@ -6,7 +6,7 @@
 
     <servlet>
         <servlet-name>Oauth2CallBackServlet</servlet-name>
-        <servlet-class>com.incentro.sa.Servlets.Oauth2CallBackServlet</servlet-class>
+        <servlet-class>com.incentro.sa.servlets.Oauth2CallBackServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
@@ -17,7 +17,7 @@
 
     <servlet>
         <servlet-name>getMailServlet</servlet-name>
-        <servlet-class>com.incentro.sa.Servlets.getMailServlet</servlet-class>
+        <servlet-class>com.incentro.sa.servlets.GetMailServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>getMailServlet</servlet-name>
@@ -27,7 +27,7 @@
 
     <servlet>
         <servlet-name>Subscribe</servlet-name>
-        <servlet-class>com.incentro.sa.Servlets.Subscribe</servlet-class>
+        <servlet-class>com.incentro.sa.servlets.Subscribe</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>Subscribe</servlet-name>
@@ -35,7 +35,7 @@
     </servlet-mapping>
     <servlet>
         <servlet-name>Unsubscribe</servlet-name>
-        <servlet-class>com.incentro.sa.Servlets.Unsubscribe</servlet-class>
+        <servlet-class>com.incentro.sa.servlets.Unsubscribe</servlet-class>
     </servlet>
 
     <servlet-mapping>
@@ -44,7 +44,7 @@
     </servlet-mapping>
     <servlet>
         <servlet-name>Login</servlet-name>
-        <servlet-class>com.incentro.sa.Servlets.Login</servlet-class>
+        <servlet-class>com.incentro.sa.servlets.Login</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>Login</servlet-name>

@@ -1,4 +1,4 @@
-package com.incentro.sa.Servlets;
+package com.incentro.sa.servlets;
 
 import com.incentro.sa.models.GoogleUser;
 import com.incentro.sa.services.datastore.DatastoreService;
@@ -11,11 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-public class getMailServlet extends HttpServlet {
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-    }
-
+public class GetMailServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // Build a new authorized API client service.
         List<GoogleUser> allSubscribedUsers = DatastoreService.getAllSubscribedUsers();
@@ -24,7 +20,7 @@ public class getMailServlet extends HttpServlet {
                 MailLabelUtil.checkLabelsAndAnalyseMail(googleUser);
             }
         }
-        request.setAttribute("message","Emails have been analysed.");
+        request.setAttribute("message", "Emails have been analysed.");
         request.getRequestDispatcher("home.jsp").forward(request, response);
     }
 }

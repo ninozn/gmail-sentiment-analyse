@@ -1,4 +1,4 @@
-package com.incentro.sa.Servlets;
+package com.incentro.sa.servlets;
 
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;

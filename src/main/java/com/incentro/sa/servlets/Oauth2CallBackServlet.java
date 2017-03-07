@@ -1,4 +1,4 @@
-package com.incentro.sa.Servlets;
+package com.incentro.sa.servlets;
 
 import com.google.api.client.auth.oauth2.TokenResponseException;
 import com.google.api.services.oauth2.model.Tokeninfo;
