@@ -30,9 +30,6 @@ public class EmailObject {
     @Index
     private String statusMail;
 
-    public EmailObject() {
-    }
-
     public EmailObject(String user, Date theDate, String messID, String from, String sub) {
         primaryEmail = user;
         dateOfMail = theDate;
